@@ -1,5 +1,6 @@
 import discord
 import os
+import subprocess
 from typing import TypedDict
 from colorama import Fore
 from discord.ext import tasks, commands
@@ -104,29 +105,29 @@ def required_info_set():
 def commandUnauthorized(feedback):
     return "This command was not authorized by the user. Do not try it again. Here is the provided feedback: " + feedback
 
-    @app_commands.command(name="start", description="Start Auto-GPT instance with optional parameters")
-    async def start_auto_gpt(self, interaction: discord.Interaction, gpt4only: bool = False, gpt3only: bool = False):
-        # Check permissions (replace with appropriate logic)
-        if str(interaction.user.id) not in AUTHORIZED_USER_IDS:
-            await interaction.followup.send("You do not have permission to execute this command.")
-            return
+@client.tree.command(name="start", description="Start Auto-GPT instance with optional parameters")
+async def start_auto_gpt(self, interaction: discord.Interaction, gpt4only: bool = False, gpt3only: bool = False):
+    # Check permissions (replace with appropriate logic)
+    if str(interaction.user.id) not in AUTHORIZED_USER_IDS:
+        await interaction.followup.send("You do not have permission to execute this command.")
+        return
 
-        # Build the docker command
-        command = ["docker-compose", "run", "-u", "root", "--rm", "auto-gpt"]
-        if gpt4only:
-            command.append("--gpt4only")
-        if gpt3only:
-            command.append("--gpt3only")
+    # Build the docker command
+    command = ["docker-compose", "run", "-u", "root", "--rm", "auto-gpt"]
+    if gpt4only:
+        command.append("--gpt4only")
+    if gpt3only:
+        command.append("--gpt3only")
 
-        # Run the command
-        try:
-            result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            if result.returncode == 0:
-                await interaction.followup.send("Auto-GPT has been started successfully.")
-            else:
-                await interaction.followup.send(f"An error occurred: {result.stderr}")
-        except Exception as e:
-            await interaction.followup.send(f"An unexpected error occurred: {str(e)}")
+    # Run the command
+    try:
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        if result.returncode == 0:
+            await interaction.followup.send("Auto-GPT has been started successfully.")
+        else:
+            await interaction.followup.send(f"An error occurred: {result.stderr}")
+    except Exception as e:
+        await interaction.followup.send(f"An unexpected error occurred: {str(e)}")
 
 def run_bot():
     global client
